@@ -25,7 +25,7 @@ def create_mp4(output_path: Path, frames_folder, fps=30):
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
     
-    for img_path in tqdm(image_files):
+    for img_path in image_files:
         frame = cv2.imread(img_path)
         out.write(frame)
         
