@@ -132,6 +132,7 @@ def plot_slice_full(ct_array, seg_array, slice_idx, slice_range):
     a.set_anchor("W")  # align left
     a.imshow(ct_array.mean(axis=1), cmap='gray', origin="lower", aspect='auto');
     a.imshow(seg_array.any(axis=1), cmap=transparent_cmap(lc), origin="lower", aspect='auto')
+    a.set_facecolor("k")
     
     # draw current slice location
     a.axhline(y=slice_idx, color='cyan', linestyle='-', linewidth=1)
