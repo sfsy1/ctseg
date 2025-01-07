@@ -129,9 +129,9 @@ def plot_slice_full(ct_array, seg_array, slice_idx, slice_range):
     
     # right
     a = ax["E"]
-    a.imshow(ct_array.mean(axis=1), cmap='gray', origin="lower")
-    a.imshow(seg_array.any(axis=1), cmap=transparent_cmap(lc), origin="lower"); 
     a.set_anchor("W")  # align left
+    a.imshow(ct_array.mean(axis=1), cmap='gray', origin="lower", aspect='auto');
+    a.imshow(seg_array.any(axis=1), cmap=transparent_cmap(lc), origin="lower", aspect='auto')
     
     # draw current slice location
     a.axhline(y=slice_idx, color='cyan', linestyle='-', linewidth=1)
@@ -144,12 +144,13 @@ def plot_slice_full(ct_array, seg_array, slice_idx, slice_range):
         add_border_to_axis(a)
     
     fig.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
+    plt.close()
     return fig
 
 
 def plot_and_save(args):
     ct_array, seg_array, i, slice_range, frames_folder = args
     fig = plot_slice_full(ct_array, seg_array, i, slice_range)
-    frame_path = f"{frames_folder}/{frame}_{i}"
-    fig.savefig(f"{frame_path}.jpg", bbox_inches='tight', pad_inches=0, dpi=180);
+    frame_path = f"{frames_folder}/frame_{i:04d}"
+    fig.savefig(f"{frame_path}.jpg", bbox_inches='tight', pad_inches=0, dpi=180)
     plt.close();
