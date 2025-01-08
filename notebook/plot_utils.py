@@ -96,8 +96,9 @@ def plot_slice_full(ct_array, seg_array, slice_idx, slice_range):
 
     lung = apply_window(ct_slice, LUNG_WIN['center'], LUNG_WIN['width'])
     abdomen = apply_window(ct_slice, ABD_WIN['center'], ABD_WIN['width'])
-
-    fig, ax = plt.subplot_mosaic("ABE;CDE", figsize=(9,6))  # 
+    
+    fig, ax = plt.subplot_mosaic("ABE;CDE", figsize=(9,6))
+    fig.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
     fig.patch.set_facecolor("k")
 
     # styling
@@ -136,16 +137,14 @@ def plot_slice_full(ct_array, seg_array, slice_idx, slice_range):
     
     # draw current slice location
     a.axhline(y=slice_idx, color='cyan', linestyle='-', linewidth=1)
-    slice_text = f"{slice_idx}/{ct_array.shape[0]}"
+    slice_text = f"{slice_idx+1}/{ct_array.shape[0]}"
     plot_text(a, slice_text, "cyan", 700, align="right", size=legend_size)
     
     # subplot border
     for k, a in ax.items():
         a.set_axis_off()
         add_border_to_axis(a)
-    
-    fig.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
-    plt.close()
+
     return fig
 
 
@@ -154,4 +153,4 @@ def plot_and_save(args):
     fig = plot_slice_full(ct_array, seg_array, i, slice_range)
     frame_path = f"{frames_folder}/frame_{i:04d}"
     fig.savefig(f"{frame_path}.jpg", bbox_inches='tight', pad_inches=0, dpi=180)
-    plt.close();
+    plt.close(fig);
