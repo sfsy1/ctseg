@@ -97,13 +97,18 @@ def add_current_slice_viz(ax, ct_array, slice_idx, text_size, color="limegreen")
     plot_text(ax, slice_text, color, 700, align="right", size=text_size)
 
 
+def window_ct(ct_slice):
+    lung = apply_window(ct_slice, LUNG_WIN['center'], LUNG_WIN['width'])
+    abdomen = apply_window(ct_slice, ABD_WIN['center'], ABD_WIN['width'])
+    return lung, abdomen
+
+
 def plot_slice_full(ct_array, seg_array, suv_array=None, slice_idx=0):
     # get slice
     ct_slice = ct_array[slice_idx]
     seg_slice = seg_array[slice_idx]
 
-    lung = apply_window(ct_slice, LUNG_WIN['center'], LUNG_WIN['width'])
-    abdomen = apply_window(ct_slice, ABD_WIN['center'], ABD_WIN['width'])
+    lung, abdomen = window_ct(ct_slice)
 
     # col_widths = [4.5, 4.5, 3.5, 3.5]
     # if suv_array is not None:
