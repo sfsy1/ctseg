@@ -139,6 +139,34 @@ def iou_3d(pred: np.ndarray, gt: np.ndarray) -> float:
     return 1.0 if union == 0 and intersection == 0 else intersection / union
 
 
+def get_bbox(seg):
+    mask = np.asarray(seg)
+    rows = np.any(mask, axis=1)
+    cols = np.any(mask, axis=0)
+    ymin, ymax = np.where(rows)[0][[0, -1]]
+    xmin, xmax = np.where(cols)[0][[0, -1]]
+    return [xmin, ymin, xmax, ymax]
+
+
+def get_bbox_aspect_ratio(seg):
+    """Get aspect ratio of bounding box of seg projected onto the horizontal plane"""
+    bbox = get_bbox(seg.sum(axis=0))
+    xmin, ymin, xmax, ymax = bbox
+    w, h = xmax - xmin + 1, ymax - ymin + 1
+    return max(w, h) / min(w, h)
+
+
+def get_vertical_aspect_ratio(seg):
+    """dim in vertical axis / geometric mean of dims of projection onto the horizontal plane"""
+    bbox = get_bbox(seg.sum(axis=0))
+    xmin, ymin, xmax, ymax = bbox
+    w, h = xmax - xmin + 1, ymax - ymin + 1
+
+    indices = np.nonzero(seg)
+    z = np.max(indices[0]) - np.min(indices[0]) + 1
+    return z / np.sqrt(w**2 + h**2)
+
+
 def evaluate_3d_metrics(pred_path: Path | str, gt_path: Path | str) -> dict:
     """
     Evaluate multiple 3D segmentation metrics given file paths to
@@ -147,16 +175,20 @@ def evaluate_3d_metrics(pred_path: Path | str, gt_path: Path | str) -> dict:
     pred = load_seg(pred_path)
     gt = load_seg(gt_path)
 
-    dp = 3  # rounding
-    metrics = {
-        "dice": round(float(dice_score(pred, gt)), dp),
-        "iou": round(float(iou_3d(pred, gt)), dp),
-        "p": round(float(precision(pred, gt)), dp),
-        "r": round(float(recall(pred, gt)), dp),
-        "volume": round(float(volume_similarity(pred, gt)), dp),
+    float_metrics = {
+        "dice": dice_score(pred, gt),
+        "iou": iou_3d(pred, gt),
+        "p": precision(pred, gt),
+        "r": recall(pred, gt),
+        "volume_similarity": volume_similarity(pred, gt),
+        "gt_volume": gt.sum(),
+        "gt_ar_horizontal": get_bbox_aspect_ratio(gt),
+        "gt_ar_vertical": get_vertical_aspect_ratio(gt),
         # "Hausdorff Distance": round(float(hausdorff_distance(pred, gt)), dp),
         # "Surface Distance": round(float(surface_distance(pred, gt)), dp),
         # "Shape Similarity": round(float(shape_similarity(pred, gt)), dp),
     }
+    float_metrics = {k: round(float(x), 5) for k, x in float_metrics.items()}
+    other_metrics = {}
 
-    return metrics
+    return float_metrics | other_metrics
