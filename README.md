@@ -21,13 +21,29 @@ jupyter kernelspec list
 jupyter kernelspec remove KERNEL_NAME
 ```
 
-
-
 ## Video Generation
 ### AutoPET
 [Dataset](https://uppsala.app.box.com/folder/286456299982?s=t33kcqjifp0q23fv2zf0i58sz8njxcd7)
-that the we are labeling and reviewing (2024-2025).
+that we are labeling and reviewing (2024-2025).
 
 Script: `notebooks/ct_video.ipynb`
+
+## ULS23
+* Download all 6 .zip parts files from https://github.com/DIAGNijmegen/ULS23/
+* Unzip all 6 parts such that they are in the same folder 
+  * The folder should contain fragmented zip files (.z01, .z02, ...) for all 6 parts
+* Unzip the fragmented zip files
+
+```commandline
+sudo apt update
+sudo apt install p7zip-full
+
+7z x ULS23_Part1.zip
+7z x ULS23_Part2.zip
+...
+```
+
+Labels in git repo - merge the label folder with the existing `ULS23` data folder.
+
 
 
