@@ -1,16 +1,20 @@
+import io
+import tempfile
+import zipfile
 from pathlib import Path
 
+import SimpleITK as sitk
 import nrrd
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.ndimage import label as nd_label
 from scipy.spatial.distance import directed_hausdorff
 from skimage import measure
-from skimage.measure import label, regionprops, marching_cubes
-from scipy.ndimage import label as nd_label
+from skimage.measure import regionprops, marching_cubes
 
 
 def get_start_end_slice(seg_array, margin=1) -> tuple:
-    nonzero_slice = np.nonzero(seg_array.sum(axis=(1,2)))
+    nonzero_slice = np.nonzero(seg_array.sum(axis=(1, 2)))
     start = max(0, np.min(nonzero_slice) - margin)
     end = min(seg_array.shape[0], np.max(nonzero_slice) + margin)
     return start, end
@@ -18,7 +22,7 @@ def get_start_end_slice(seg_array, margin=1) -> tuple:
 
 def plot_seg(image_slice, seg_slice):
     contours = measure.find_contours(seg_slice, level=0.5)
-    fig, axes = plt.subplots(1, 2, figsize=(8,4))
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
     axes[0].imshow(image_slice, cmap="gray")
     axes[0].set_title("Original CT Slice")
     axes[0].axis("off")
@@ -31,18 +35,33 @@ def plot_seg(image_slice, seg_slice):
     plt.tight_layout()
 
 
+def read_nii_gz_zip(zip_path: Path | str) -> sitk.Image:
+    with zipfile.ZipFile(zip_path, 'r') as zf:
+        nii_file = next(f for f in zf.namelist() if f.endswith('.nii.gz'))
+        with tempfile.NamedTemporaryFile(suffix=".nii.gz", delete=True) as temp_file:
+            temp_file.write(zf.read(nii_file))
+            temp_file.flush()  # Ensure all data is written to disk
+            return sitk.ReadImage(temp_file.name, imageIO="NiftiImageIO")
+
+
 def load_seg(file_path: Path | str) -> np.ndarray:
     """
     Load 3D segmentation from a file.
     Replace this with actual loading logic (e.g., NIFTI, NumPy, etc.).
     """
     # Add appropriate file handling here based on the file format
-    file_type = Path(file_path).suffix[1:].lower()
-    if file_type == "nrrd":
+    file_type = "".join(Path(file_path).suffixes).lower()
+    if file_type == ".nrrd":
         data, header = nrrd.read(file_path)
         return data
-    elif file_type == "npy":
-        return np.load(file_path)  # Example assuming a NumPy file
+    elif file_type == ".npy":
+        return np.load(file_path)
+    elif file_type == ".nii.gz":
+        img = sitk.ReadImage(file_path)
+        return sitk.GetArrayFromImage(img)
+    elif file_type == ".nii.gz.zip":
+        img = read_nii_gz_zip(file_path)
+        return sitk.GetArrayFromImage(img)
     else:
         raise ValueError(f"Unsupported file type: {file_type}")
 
@@ -108,7 +127,16 @@ def recall(pred: np.ndarray, gt: np.ndarray) -> float:
     """Calculate recall (sensitivity)."""
     tp = np.sum((pred > 0) & (gt > 0))
     fn = np.sum((pred == 0) & (gt > 0))
-    return float(tp / (tp + fn) if (tp + fn) > 0 else 0)
+    return round(tp / (tp + fn) if (tp + fn) > 0 else 0, 4)
+
+
+def iou_3d(pred: np.ndarray, gt: np.ndarray) -> float:
+    """Calculate IoU for two binary 3D arrays."""
+    pred_bool = pred.astype(bool)
+    gt_bool = gt.astype(bool)
+    intersection = np.sum((pred_bool & gt_bool))
+    union = np.sum((pred_bool | gt_bool))
+    return 1.0 if union == 0 and intersection == 0 else intersection / union
 
 
 def evaluate_3d_metrics(pred_path: Path | str, gt_path: Path | str) -> dict:
@@ -119,14 +147,16 @@ def evaluate_3d_metrics(pred_path: Path | str, gt_path: Path | str) -> dict:
     pred = load_seg(pred_path)
     gt = load_seg(gt_path)
 
+    dp = 3  # rounding
     metrics = {
-        "Dice Score": dice_score(pred, gt),
-        "Precision": precision(pred, gt),
-        "Recall": recall(pred, gt),
-        "Volume Similarity": volume_similarity(pred, gt),
-        "Hausdorff Distance": hausdorff_distance(pred, gt),
-        "Surface Distance": surface_distance(pred, gt),
-        "Shape Similarity": shape_similarity(pred, gt)
+        "dice": round(float(dice_score(pred, gt)), dp),
+        "iou": round(float(iou_3d(pred, gt)), dp),
+        "p": round(float(precision(pred, gt)), dp),
+        "r": round(float(recall(pred, gt)), dp),
+        "volume": round(float(volume_similarity(pred, gt)), dp),
+        # "Hausdorff Distance": round(float(hausdorff_distance(pred, gt)), dp),
+        # "Surface Distance": round(float(surface_distance(pred, gt)), dp),
+        # "Shape Similarity": round(float(shape_similarity(pred, gt)), dp),
     }
 
     return metrics
