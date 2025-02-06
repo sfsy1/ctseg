@@ -20,19 +20,55 @@ def get_start_end_slice(seg_array, margin=1) -> tuple:
     return start, end
 
 
-def plot_seg(image_slice, seg_slice):
-    contours = measure.find_contours(seg_slice, level=0.5)
-    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
-    axes[0].imshow(image_slice, cmap="gray")
-    axes[0].set_title("Original CT Slice")
-    axes[0].axis("off")
+def get_seg_bbox(seg):
+    mask = np.asarray(seg)
+    rows = np.any(mask, axis=1)
+    cols = np.any(mask, axis=0)
+    ymin, ymax = np.where(rows)[0][[0, -1]]
+    xmin, xmax = np.where(cols)[0][[0, -1]]
+    return [xmin, ymin, xmax, ymax]
 
-    axes[1].imshow(image_slice, cmap="gray")
+
+def expand_to_square_bbox(bbox, ratio, min_size=None):
+    """
+    Convert bbox to square w longest side, then expand it by a ratio
+    """
+    x_min, y_min, x_max, y_max = bbox
+    side = max(x_max - x_min, y_max - y_min) * ratio
+    if min_size:
+        side = max(side, min_size)
+
+    cx, cy = (x_min + x_max) / 2, (y_min + y_max) / 2
+    half_side = side / 2
+    return [cx - half_side, cy - half_side, cx + half_side, cy + half_side]
+
+
+def plot_seg(image_slice, seg_slice, gt_slice, zoom=True):
+    contours = measure.find_contours(seg_slice, level=0.5)
+    gt_contours = measure.find_contours(gt_slice, level=0.5)
+
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
+    axes[0].imshow(image_slice, cmap="gray_r")
+    axes[0].set_title("Original CT Slice")
+
+    axes[1].imshow(image_slice, cmap="gray_r")
     for contour in contours:
-        axes[1].plot(contour[:, 1], contour[:, 0], color="red", linewidth=1)
-    axes[1].set_title("CT with Segmentation Overlay")
-    axes[1].axis("off")
+        axes[1].plot(contour[:, 1], contour[:, 0], color="purple", linewidth=1)
+    for contour in gt_contours:
+        axes[1].plot(contour[:, 1], contour[:, 0], color="g", linewidth=1)
+    axes[1].set_title(f"GT(green): {int(gt_slice.sum())}  |  Pred(purple) {int(seg_slice.sum())}")
+
+
+    if zoom:
+        zoom_box = expand_to_square_bbox(get_seg_bbox(seg_slice + gt_slice), 3, min_size=100)
+        for ax in axes:
+            ax.set_xlim(zoom_box[0], zoom_box[2])
+            ax.set_ylim(zoom_box[1], zoom_box[3])
+
+    for ax in axes:
+        ax.axis("off")
     plt.tight_layout()
+    return fig
 
 
 def read_nii_gz_zip(zip_path: Path | str) -> sitk.Image:
