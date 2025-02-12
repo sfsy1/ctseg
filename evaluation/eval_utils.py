@@ -21,12 +21,13 @@ def get_start_end_slice(seg_array, margin=1) -> tuple:
 
 
 def get_seg_bbox(seg):
+    """xyxy"""
     mask = np.asarray(seg)
     rows = np.any(mask, axis=1)
     cols = np.any(mask, axis=0)
     ymin, ymax = np.where(rows)[0][[0, -1]]
     xmin, xmax = np.where(cols)[0][[0, -1]]
-    return [xmin, ymin, xmax, ymax]
+    return [int(x) for x in [xmin, ymin, xmax, ymax]]
 
 
 def expand_to_square_bbox(bbox, ratio, min_size=None):
