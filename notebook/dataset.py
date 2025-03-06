@@ -44,7 +44,6 @@ class SegmentationDataset(Dataset):
         # pad then crop image/mask from full slice
         max_margin = multiples + margin
         image = pad_arr(image, max_margin, 'edge', None)
-        plt.imshow(image); plt.axis('off'); plt.show()
 
         image_crop = image[
              bbox[1] + max_margin:bbox[3] + max_margin,
@@ -75,7 +74,7 @@ class SegmentationDataset(Dataset):
         return {
             "input": input_image,
             "image": image_crop,
-            "mask": mask_crop,
+            "mask": mask_crop.unsqueeze(0),
             "box_mask": box_mask_crop,
             "name": str(image_name)
         }
