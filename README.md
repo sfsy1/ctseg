@@ -20,6 +20,20 @@ To edit or remove kernels:
 jupyter kernelspec list
 jupyter kernelspec remove KERNEL_NAME
 ```
+## Segmentation with 2D BBox Prompt
+Training: `notebook/2d_box_seg.ipynb`
+
+![img.png](readme/2d_bbox_prompt_seg.png)
+* Green: true positive
+* Red: false positive
+* Purple: false negative
+
+### Dataset
+DeepLesion 3D subset of the ULS23 dataset
+* 743 3D lesion segmentations
+* 4538 2D slices
+* train/val split done by lesions to avoid data leakage
+
 
 ## Video Generation
 ### AutoPET
