@@ -33,8 +33,7 @@ train_transform = A.Compose([A.Lambda(image=clip_partial, mask=pass_through),
                              A.GaussianBlur(blur_limit=5, p=0.5),
                              A.GaussNoise(std_range=(0.01, 0.05), per_channel=False, p=0.5),
 
-                             # # spatial
+                             # spatial
                              A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5), A.Transpose(p=0.5),
-                             A.OpticalDistortion(distort_limit=(-0.5, -0.1), p=0.5),
                              A.GridDistortion(p=0.5),  # produces black border at the btm/right
                              ToTensorV2(), ])
