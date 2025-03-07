@@ -14,7 +14,7 @@ class UNet(L.LightningModule):
     def __init__(self):
         super().__init__()
         self.model = smp.Unet(
-            encoder_name="resnet18",
+            encoder_name="resnext50_32x4d",
             encoder_weights="imagenet",
             in_channels=2,
             classes=1,
@@ -33,9 +33,7 @@ class UNet(L.LightningModule):
         y_pred = self.model(x)
         dice_score = self.dice(y_pred, y)
         loss = 1 - dice_score
-        # iou_loss = self.iou(y_pred, y)
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
-        # self.log('train_iou', iou, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
