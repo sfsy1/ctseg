@@ -23,17 +23,31 @@ def pass_through(mask, **kwargs):
 clip_partial = partial(clip_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 scale_partial = partial(scale_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 
-val_transform = A.Compose([A.Lambda(image=clip_partial, mask=pass_through),
-                           A.Lambda(image=scale_partial, mask=pass_through), ToTensorV2(), ])
+D = 256
 
-train_transform = A.Compose([A.Lambda(image=clip_partial, mask=pass_through),
-                             A.Lambda(image=scale_partial, mask=pass_through),
+preprocess = [
+    A.Lambda(image=clip_partial, mask=pass_through),
+    A.Lambda(image=scale_partial, mask=pass_through)
+]
 
-                             # pixel
-                             A.GaussianBlur(blur_limit=5, p=0.5),
-                             A.GaussNoise(std_range=(0.01, 0.05), per_channel=False, p=0.5),
+resize = [
+    # A.LongestMaxSize(max_size=D),
+    # A.PadIfNeeded(min_height=D, min_width=D, border_mode=0, fill=0),
+    ToTensorV2(),
+]
 
-                             # spatial
-                             A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5), A.Transpose(p=0.5),
-                             A.GridDistortion(p=0.5),  # produces black border at the btm/right
-                             ToTensorV2(), ])
+val_transform = A.Compose([
+    *preprocess,
+    *resize,
+])
+
+train_transform = A.Compose([
+    *preprocess,
+    # pixel
+    A.GaussianBlur(blur_limit=5, p=0.5),
+    A.GaussNoise(std_range=(0.01, 0.05), per_channel=False, p=0.5),
+    # spatial
+    A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5), A.Transpose(p=0.5),
+    A.GridDistortion(p=0.5),  # produces black border at the btm/right
+    *resize,
+])
