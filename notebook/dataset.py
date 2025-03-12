@@ -1,6 +1,5 @@
 import os
 import random
-from functools import partial
 from pathlib import Path
 
 import nrrd
@@ -34,23 +33,30 @@ class SegmentationDataset(Dataset):
         image = np.load(image_path)
         mask, header = nrrd.read(str(mask_path))
         bbox = get_seg_bbox(mask)
+        bbox_w, bbox_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
 
         # add some margins to existing bbox and expand to multiples
-        multiples = 32
-        margin = 2
+        multiples = 8
+        margin = max(3, max(bbox_w, bbox_h) // 10)
         bbox = expand_bbox_to_multiple(bbox, multiples, margin)
 
         # pad then crop image/mask from full slice
         max_margin = multiples + margin
+
         image = pad_arr(image, max_margin, 'edge', None)
 
-        image_crop = image[bbox[1] + max_margin:bbox[3] + max_margin, bbox[0] + max_margin:bbox[2] + max_margin, ]
+        left = bbox[1] + max_margin
+        right = bbox[3] + max_margin
+        top = bbox[0] + max_margin
+        bottom = bbox[2] + max_margin
+        image_crop = image[left:right, top:bottom]
+
         mask = pad_arr(mask, max_margin, "constant", AIR_VALUE)
-        mask_crop = mask[bbox[1] + max_margin:bbox[3] + max_margin, bbox[0] + max_margin:bbox[2] + max_margin, ]
+        mask_crop = mask[left:right, top:bottom]
 
         transformed = self.transform(image=image_crop, mask=mask_crop)
         image_crop = transformed['image']
-        mask_crop = transformed['mask']
+        mask_crop = transformed['mask'].float()
 
         # create box mask based on the transformed mask_crop
         box_mask_crop = torch.zeros(mask_crop.shape)
