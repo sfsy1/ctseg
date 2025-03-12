@@ -41,11 +41,10 @@ class UNet(L.LightningModule):
         loss = mse_loss
 
         # metrics
-        y_pred_mask = y_pred > 0.5
-        dice_score = self.dice(y_pred_mask, y)
-
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_dice', dice_score, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        # y_pred_mask = y_pred > 0.5
+        # dice_score = self.dice(y_pred_mask, y)
+        # self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        # self.log('train_dice', dice_score, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -59,15 +58,20 @@ class UNet(L.LightningModule):
 
         # metrics
         y_pred_mask = y_pred > 0.5
-        vol_sim = 1 - abs(y_pred_mask.sum() - y.sum()) / y.sum()
         dice_score = self.dice(y_pred_mask, y)
+        # calculate vol similarity at the sample level, then mean
+        pred_vols = y_pred_mask.sum(axis=(2,3))
+        y_vols = y.sum(axis=(2,3))
+
+        mean_vol_sim = 1 - ((pred_vols - y_vols).abs() / y_vols).mean()
+        mean_vol_sim = mean_vol_sim.clip(0, 1)
 
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log('val_dice', dice_score, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('val_vols', vol_sim, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_vols', mean_vol_sim, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-2)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
         return optimizer
