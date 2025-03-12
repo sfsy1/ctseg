@@ -31,8 +31,8 @@ preprocess = [
 ]
 
 resize = [
-    # A.LongestMaxSize(max_size=D),
-    # A.PadIfNeeded(min_height=D, min_width=D, border_mode=0, fill=0),
+    A.LongestMaxSize(max_size=D),
+    A.PadIfNeeded(min_height=D, min_width=D, border_mode=0, fill=0),
     ToTensorV2(),
 ]
 
