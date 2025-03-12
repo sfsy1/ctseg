@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 AIR_VALUE = -1000  # HU of air
@@ -24,17 +26,25 @@ def expand_bbox_to_multiple(bbox, n, margin):
     y2 += margin
     width = x2 - x1
     height = y2 - y1
-    center_x = round((x1 + x2) / 2)
-    center_y = round((y1 + y2) / 2)
+    center_x = math.ceil((x1 + x2) / 2)
+    center_y = math.ceil((y1 + y2) / 2)
 
-    min_multiples = 2
-    new_width = max(min_multiples, width // n + (width % n > 0)) * n
-    new_height = max(min_multiples, height // n + (height % n > 0)) * n
+    # min dimension is min_multiples * n
+    min_multiples = 1
+    max_dim = max(height, width)
+    new_width = max(min_multiples, max_dim // n + (max_dim % n > 0)) * n
+    new_height = new_width
 
-    new_x1 = center_x - new_width / 2
-    new_y1 = center_y - new_height / 2
-    new_x2 = center_x + new_width / 2
-    new_y2 = center_y + new_height / 2
+
+    left = int(new_width / 2)
+    right = new_width - left
+    top = int(new_height / 2)
+    bottom = new_height - top
+
+    new_x1 = center_x - left
+    new_y1 = center_y - top
+    new_x2 = center_x + right
+    new_y2 = center_y + bottom
 
     return round(new_x1), round(new_y1), round(new_x2), round(new_y2)
 
