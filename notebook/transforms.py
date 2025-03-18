@@ -23,22 +23,23 @@ def pass_through(mask, **kwargs):
 clip_partial = partial(clip_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 scale_partial = partial(scale_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 
-D = 256
 
 preprocess = [
     A.Lambda(image=clip_partial, mask=pass_through),
     A.Lambda(image=scale_partial, mask=pass_through)
 ]
 
-resize = [
-    A.LongestMaxSize(max_size=D),
-    A.PadIfNeeded(min_height=D, min_width=D, border_mode=0, fill=0),
+D = 128
+
+resize = lambda dim: [
+    A.LongestMaxSize(max_size=dim),
+    A.PadIfNeeded(min_height=dim, min_width=dim, border_mode=0, fill=0),
     ToTensorV2(),
 ]
 
 val_transform = A.Compose([
     *preprocess,
-    *resize,
+    *resize(D),
 ])
 
 train_transform = A.Compose([
@@ -49,5 +50,10 @@ train_transform = A.Compose([
     # spatial
     A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5), A.Transpose(p=0.5),
     A.GridDistortion(p=0.5),  # produces black border at the btm/right
-    *resize,
+    *resize(D),
+])
+
+context_transform = A.Compose([
+    *preprocess,
+    *resize(D),
 ])
