@@ -10,7 +10,7 @@ def expand_bbox(bbox, up, down, left, right):
     return [max(0, x) for x in expanded_box]
 
 
-def expand_bbox_to_multiple(bbox, n, margin):
+def expand_bbox_to_multiple(bbox, n, margin, min_multiples):
     """
     expand bbox by margin, then expand to multiples of n
     bbox: xyxy
@@ -30,7 +30,6 @@ def expand_bbox_to_multiple(bbox, n, margin):
     center_y = math.ceil((y1 + y2) / 2)
 
     # min dimension is min_multiples * n
-    min_multiples = 1
     max_dim = max(height, width)
     new_width = max(min_multiples, max_dim // n + (max_dim % n > 0)) * n
     new_height = new_width
