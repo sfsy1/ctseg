@@ -75,5 +75,5 @@ class UNet(L.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=2e-3)
         return optimizer
