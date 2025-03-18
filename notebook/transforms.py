@@ -23,7 +23,6 @@ def pass_through(mask, **kwargs):
 clip_partial = partial(clip_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 scale_partial = partial(scale_image, min_val=VALUE_MIN, max_val=VALUE_MAX)
 
-
 preprocess = [
     A.Lambda(image=clip_partial, mask=pass_through),
     A.Lambda(image=scale_partial, mask=pass_through)
