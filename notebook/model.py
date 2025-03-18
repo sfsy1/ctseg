@@ -57,8 +57,10 @@ class UNet(L.LightningModule):
         loss = mse_loss
 
         # metrics
-        y_pred_mask = y_pred > 0.5
+        # use input box channel to mask pred
+        y_pred_mask = (y_pred * x[:,1:2,:,:]) > 0.5
         dice_score = self.dice(y_pred_mask, y)
+
         # calculate vol similarity at the sample level, then mean
         pred_vols = y_pred_mask.sum(axis=(2,3))
         y_vols = y.sum(axis=(2,3))
