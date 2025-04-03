@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import Dataset
 
 from evaluation.eval_utils import get_seg_bbox
-from train_utils import AIR_VALUE, expand_bbox_to_multiple, pad_arr, expand_bbox
+from train_utils import expand_bbox_to_multiple, pad_arr, expand_bbox
 
 
 class SegmentationDataset(Dataset):
