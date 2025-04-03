@@ -20,7 +20,7 @@ To edit or remove kernels:
 jupyter kernelspec list
 jupyter kernelspec remove KERNEL_NAME
 ```
-## Segmentation with 2D BBox Prompt
+## 2D Segmentation with BBox Prompt
 Training: `notebook/2d_box_seg.ipynb`
 
 ![img.png](readme/2d_bbox_prompt_seg.png)
@@ -58,6 +58,24 @@ sudo apt install p7zip-full
 ```
 
 Labels in git repo - merge the label folder with the existing `ULS23` data folder.
+
+## 3D segmentation
+### nnUNetv2
+This will be the baseline 3D model. 
+Reference: https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md
+
+#### Preprocess
+At 64GB memory, 2 processes `-np 2` is the max possible on this dataset
+```commandline
+nnUNetv2_plan_and_preprocess -d 1 -np 2
+```
+
+#### Train
+Train model dataset 1 on all cross-validation folds. Add `--npz` to choose best config later.
+```commandline
+nnUNetv2_train 1 3d_fullres all --npz
+```
+Other training config are `2d`, `3d_lowres`, `3d_cascade_fullres`. 
 
 
 
