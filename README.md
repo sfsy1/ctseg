@@ -61,9 +61,20 @@ Labels in git repo - merge the label folder with the existing `ULS23` data folde
 
 ## 3D segmentation
 ### nnUNetv2
-This will be the baseline 3D model. 
-Reference: https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md
+[nnUNet repo](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md) 
+All commands below should be run in the nnUNet project directory.
 
+#### Environmental Variables
+Create an `env.sh` file, for example:
+```python
+export nnUNet_raw="/media/liushifeng/KINGSTON/nnUNet_raw"
+export nnUNet_preprocessed="/media/liushifeng/KINGSTON/nnUNet_preprocessed/"
+export nnUNet_results="/media/liushifeng/KINGSTON/nnUNet_results"
+```
+Apply them:
+```commandline
+source env.sh
+```
 #### Preprocess
 At 64GB memory, 2 processes `-np 2` is the max possible on this dataset
 ```commandline
@@ -76,6 +87,14 @@ Train model dataset 1 on all cross-validation folds. Add `--npz` to choose best 
 nnUNetv2_train 1 3d_fullres all --npz
 ```
 Other training config are `2d`, `3d_lowres`, `3d_cascade_fullres`. 
+
+##### Resume Training
+Save the best and final checkpoints from previous run before running this:
+```commandline
+nnUNetv2_train 1 3d_fullres all --npz -pretrained_weights path/to/checkpoint.pth
+```
+
+
 
 
 
