@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["gnefihs <sfsy1@yahoo.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -12,7 +13,7 @@ ipywidgets = "^8.1.5"
 nbformat = "^5.10.4"
 simpleitk = "^2.4.0"
 matplotlib = "^3.10.0"
-numpy = "^2.2.1"
+numpy = "^1.24"
 arrow = "^1.3.0"
 tqdm = "^4.67.1"
 opencv-python = "^4.10.0.84"
@@ -29,6 +30,9 @@ notebook = "^7.3.2"
 scikit-learn = "^1.6.1"
 lightning = "^2.5.0.post0"
 tensorboard = "^2.19.0"
+lighter-zoo = "^0.1.3"
+monai = "^1.4.0"
+connected-components-3d = "^3.23.0"
 
 
 [build-system]
