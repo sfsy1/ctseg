@@ -21,7 +21,8 @@ jupyter kernelspec list
 jupyter kernelspec remove KERNEL_NAME
 ```
 ## 2D Segmentation with BBox Prompt
-Training: `notebook/2d_box_seg.ipynb`
+* Main folder: `2d_seg_and_video`
+* Training: `2d_seg_and_video/2d_box_seg.ipynb`
 
 ![img.png](readme/2d_bbox_prompt_seg.png)
 * Green: true positive
@@ -60,37 +61,53 @@ sudo apt install p7zip-full
 Labels in git repo - merge the label folder with the existing `ULS23` data folder.
 
 ## 3D segmentation
-### nnUNetv2
+* Main folder: `3d_seg`
+
+### CT-FM Seg Model
+* Project page: https://aim.hms.harvard.edu/ct-fm
+* Model: https://huggingface.co/project-lighter/whole_body_segmentation 
+
+#### Relevant files
+* `patching.ipynb` Scripts to split existing datasets into patches
+* `ct-fm.ipynb` Scripts for testing and training ct-fm seg model
+
+
+###  nnUNetv2
 [nnUNet repo](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md) 
 All commands below should be run in the nnUNet project directory.
 
-#### Environmental Variables
-Create an `env.sh` file, for example:
-```python
-export nnUNet_raw="/media/liushifeng/KINGSTON/nnUNet_raw"
-export nnUNet_preprocessed="/media/liushifeng/KINGSTON/nnUNet_preprocessed/"
-export nnUNet_results="/media/liushifeng/KINGSTON/nnUNet_results"
+#### Relevant files
+* `nnunet_data_proc.ipynb` Scripts to generate raw data
+
+#### Setting up
+Set env variables e.g. by creating an `env.sh` file:
+```bash
+export nnUNet_raw="path/to/nnUNet_raw"
+export nnUNet_preprocessed="/path/to/nnUNet_preprocessed/"
+export nnUNet_results="/path/to/nnUNet_results"
 ```
-Apply them:
-```commandline
+Apply them in terminal:
+```bash
 source env.sh
 ```
 #### Preprocess
-At 64GB memory, 2 processes `-np 2` is the max possible on this dataset
-```commandline
+At 64GB memory, 2 processes `-np 2` is the max possible on this dataset. Proocessed data will be stored at the `nnUNet_preprocessed` path.
+```bash
 nnUNetv2_plan_and_preprocess -d 1 -np 2
 ```
 
+
 #### Train
-Train model dataset 1 on all cross-validation folds. Add `--npz` to choose best config later.
-```commandline
-nnUNetv2_train 1 3d_fullres all --npz
+Train model dataset 1 on the 2nd cross-validation fold. Change `2` to any value from `1-5` to train on other of the 5 folds.
+```bash
+nnUNetv2_train 1 3d_fullres 2 --npz
 ```
-Other training config are `2d`, `3d_lowres`, `3d_cascade_fullres`. 
+Other training config are `2d`, `3d_lowres`, `3d_cascade_fullres`. The log and results will be stored at the `nnUNet_preprocessed` path.
+
 
 ##### Resume Training
 Save the best and final checkpoints from previous run before running this:
-```commandline
+```bash
 nnUNetv2_train 1 3d_fullres all --npz -pretrained_weights path/to/checkpoint.pth
 ```
 
