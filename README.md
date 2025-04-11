@@ -24,6 +24,8 @@ jupyter kernelspec remove KERNEL_NAME
 * Main folder: `2d_seg_and_video`
 * Training: `2d_seg_and_video/2d_box_seg.ipynb`
 * Processing logic mostly in: `2d_seg_and_video/dataset.py`
+  * Cropping and resizing
+  * Adding bbox prompt
 
 ![img.png](readme/2d_bbox_prompt_seg.png)
 * Green: true positive
