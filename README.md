@@ -23,6 +23,7 @@ jupyter kernelspec remove KERNEL_NAME
 ## 2D Segmentation with BBox Prompt
 * Main folder: `2d_seg_and_video`
 * Training: `2d_seg_and_video/2d_box_seg.ipynb`
+* Processing logic mostly in: `2d_seg_and_video/dataset.py`
 
 ![img.png](readme/2d_bbox_prompt_seg.png)
 * Green: true positive
@@ -66,6 +67,9 @@ Labels in git repo - merge the label folder with the existing `ULS23` data folde
 ### CT-FM Seg Model
 * Project page: https://aim.hms.harvard.edu/ct-fm
 * Model: https://huggingface.co/project-lighter/whole_body_segmentation 
+
+#### Out of the box results on AutoPET
+![img.png](readme/ct_fm_sample.png)
 
 #### Relevant files
 * `patching.ipynb` Scripts to split existing datasets into patches
