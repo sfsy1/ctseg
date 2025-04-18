@@ -8,7 +8,7 @@ from monai.transforms import (
 preprocess_seg = Compose([
     LoadImage(ensure_channel_first=True),
     Orientation(axcodes="SPL"),
-    Spacing((2.667, 1, 1), mode="bilinear"),
+    Spacing((1, 1, 1), mode="bilinear"),
 ])
 
 postprocess_seg = Invert(preprocess_seg)
@@ -16,7 +16,7 @@ postprocess_seg = Invert(preprocess_seg)
 preprocess = Compose([
     LoadImage(ensure_channel_first=True),
     Orientation(axcodes="SPL"),
-    Spacing((2.667, 1, 1), mode="bilinear"),
+    Spacing((1, 1, 1), mode="bilinear"),
     ScaleIntensityRange(-1024, 2048, 0, 1, clip=True),
 ])
 
