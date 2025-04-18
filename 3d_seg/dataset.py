@@ -39,11 +39,14 @@ def get_train_val_paths(img_paths, split_json_path):
 def visualize_data(img, seg, z_slice):
     x, y, z = img, seg, z_slice
     _, axes = plt.subplots(1, 3, figsize=(9, 3))
-    axes[0].imshow(x[0][z], cmap="gray")
-    axes[1].imshow(x[0][z], cmap="gray")
-    axes[1].imshow(y[0][z], cmap=transparent_cmap("r"), alpha=0.7)
-    axes[2].imshow(x[0].mean(dim=1), cmap="gray", aspect="auto")
-    axes[2].imshow(y[0].mean(dim=1), cmap=transparent_cmap("r"), alpha=0.7)
+
+    img = x[0].squeeze()
+    seg = y[0].squeeze()
+    axes[0].imshow(img[z], cmap="gray")
+    axes[1].imshow(img[z], cmap="gray")
+    axes[1].imshow(seg[z], cmap=transparent_cmap("r"), alpha=0.7)
+    axes[2].imshow(img.mean(dim=1), cmap="gray", aspect="auto")
+    axes[2].imshow(seg.mean(dim=1), cmap=transparent_cmap("r"), alpha=0.7)
 
     for ax in axes:
         ax.grid(False)
@@ -62,13 +65,13 @@ class PatchDataset(Dataset):
         img_path = self.img_paths[idx]
         seg_path = self.mask_paths[idx]
 
-        image_name = Path(img_path).stem
+        img_name = Path(img_path).stem
 
         img_tensor = torch.load(img_path, weights_only=True)
         seg_tensor = torch.load(seg_path, weights_only=True)
 
         return {
-            "name": str(image_name),
-            "img": img_tensor,
-            "seg": seg_tensor,
+            "name": str(img_name),
+            "img": img_tensor.unsqueeze(0),
+            "seg": seg_tensor.unsqueeze(0),
         }
