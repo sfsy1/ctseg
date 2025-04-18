@@ -76,7 +76,7 @@ Labels in git repo - merge the label folder with the existing `ULS23` data folde
 #### Relevant files
 * `patching.ipynb` Scripts to split existing datasets into patches
 * `ct-fm.ipynb` Scripts for testing and training ct-fm seg model
-
+* `lesion3D` Dataset folder in the Kingston SSD
 
 ###  nnUNetv2
 [nnUNet repo](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/how_to_use_nnunet.md) 
@@ -84,6 +84,7 @@ All commands below should be run in the nnUNet project directory.
 
 #### Relevant files
 * `nnunet_data_proc.ipynb` Scripts to generate raw data
+* `nnUNet_raw` Dataset folder in the Kingston SSD
 
 #### Setting up
 Set env variables e.g. by creating an `env.sh` file:
@@ -116,8 +117,3 @@ Save the best and final checkpoints from previous run before running this:
 ```bash
 nnUNetv2_train 1 3d_fullres all --npz -pretrained_weights path/to/checkpoint.pth
 ```
-
-
-
-
-
