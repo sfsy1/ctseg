@@ -138,6 +138,9 @@ Sample `dataset.json`
    "file_ending":".nii.gz"
 }
 ```
+#### Data Generation
+* `studies_ctfm_seg_mask.ipynb` generates the anatomical mask channels
+* `studies_weak_labels.ipnyb` generates the box and mask channels
 
 #### Data Splits
 The default 5 folds are used. I used the same folds every dataset
