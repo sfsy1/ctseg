@@ -105,9 +105,9 @@ nnUNetv2_plan_and_preprocess -d 1 -np 2
 
 
 #### Train
-Train model dataset 1 on the 2nd cross-validation fold. Change `2` to any value from `1-5` to train on other of the 5 folds.
+Train model dataset (1 in this example) on a specified cross-validation fold (0 in this example).
 ```bash
-nnUNetv2_train 1 3d_fullres 2 --npz
+nnUNetv2_train 1 3d_fullres 0 --npz
 ```
 Other training config are `2d`, `3d_lowres`, `3d_cascade_fullres`. The log and results will be stored at the `nnUNet_preprocessed` path.
 
@@ -117,3 +117,29 @@ Save the best and final checkpoints from previous run before running this:
 ```bash
 nnUNetv2_train 1 3d_fullres all --npz -pretrained_weights path/to/checkpoint.pth
 ```
+
+#### Adding extra channels
+* CT channel is always 0000
+* Seg masks from CT-FM seg model is 0001
+* Boxes and other priors are 0002
+
+Sample `dataset.json`
+```
+{
+   "channel_names":{
+      "0":"CT",
+      "1": "noNorm"
+   },
+   "labels":{
+      "background":0,
+      "lesion":1
+   },
+   "numTraining":782,
+   "file_ending":".nii.gz"
+}
+```
+
+#### Data Splits
+The default 5 folds are used. I used the same folds every dataset
+by copying the `splits_final.json` file from the preprocessed folder of the first
+dataset i.e. `nnUNet_preprocessed/Dataset001_3dlesion/`
