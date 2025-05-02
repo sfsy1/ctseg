@@ -2,8 +2,9 @@ frames
 outputs
 evaluation/results
 lightning_logs
-3d/ct_fm_output
 evaluation/*.csv
+3d_seg/ct_fm_output
+3d_seg/pred_visualization/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
