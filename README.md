@@ -146,3 +146,15 @@ Sample `dataset.json`
 The default 5 folds are used. I used the same folds every dataset
 by copying the `splits_final.json` file from the preprocessed folder of the first
 dataset i.e. `nnUNet_preprocessed/Dataset001_3dlesion/`
+
+
+## Visualization of 3D Outputs
+* `3d_seg/visual.ipynb` and `3d_seg/visualize.py` contains code for visualizing 3D 
+predictions for all the studies along with the CT and label masks.
+* Visualization of val set can be found on the Kingston SSD `3d_val_visualization` folder
+
+
+## Metrics & Results
+Both voxel and lesion level metrics are calculated.
+* `3d_seg/metrics.ipynb` contains code for calculating metrics
+* `3d_seg/metrics/` contains the csv files with metrics for every lesion in val set
