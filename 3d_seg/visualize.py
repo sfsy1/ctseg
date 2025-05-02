@@ -15,14 +15,15 @@ DATASETS = {
     7: "ct+seg+2mask",
 }
 
-def load_data(ct_filename, images_folder: Path, labels_folder: Path, res_folder: Path):
+def load_data(ct_filename, images_folder: Path, labels_folder: Path, res_folder: Path, load_input=True):
     name = ct_filename.replace("_0000.nii.gz", ".nii.gz")
 
     in_channels = []
-    for channel in range(2):  # only read CT and mask, not the box and mask channels
-        file_path = images_folder / name.replace(".nii.gz", f"_000{channel}.nii.gz")
-        if os.path.exists(file_path):
-            in_channels.append(sitk.GetArrayFromImage(sitk.ReadImage(file_path)))
+    if load_input:
+        for channel in range(2):  # only read CT and mask, not the box and mask channels
+            file_path = images_folder / name.replace(".nii.gz", f"_000{channel}.nii.gz")
+            if os.path.exists(file_path):
+                in_channels.append(sitk.GetArrayFromImage(sitk.ReadImage(file_path)))
 
     label_path = labels_folder / name
     label_img = sitk.ReadImage(label_path)
@@ -92,7 +93,9 @@ def plot_all_outputs(in_channels, label, preds):
             ax.set_title(f"{DATASETS[d]}", fontsize=font)
             ax.axis("off")
 
+    return fig
+
 
 def load_and_plot(ct_filename, images_folder: Path, labels_folder: Path, res_folder: Path):
     in_channels, label, preds = load_data(ct_filename, images_folder, labels_folder, res_folder)
-    plot_all_outputs(in_channels, label, preds)
+    return plot_all_outputs(in_channels, label, preds)
